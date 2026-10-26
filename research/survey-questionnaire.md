@@ -3,7 +3,7 @@
 **Title:** Train travel when your ticket is waitlisted – 4 min survey
 **Description:** I'm researching how people handle waitlisted or unavailable train tickets. No selling, answers are anonymous. Takes about 4 minutes.
 
-17 questions · 4 sections · build in Google Forms using the type in brackets.
+18 questions · 4 sections · build in Google Forms using the type in brackets.
 
 ---
 
@@ -61,6 +61,7 @@
 - Checked buses
 - Checked flights
 - Booked the WL ticket anyway
+- Tried Tatkal / Premium Tatkal
 - Asked family or an agent
 - Gave up
 
@@ -76,10 +77,19 @@
 - Booked WL with no backup
 - Took a bus
 - Took a flight
-- Booked through an agent / Tatkal
+- Booked Tatkal myself
+- Booked through an agent
 - Postponed or cancelled the trip
 
-**10. Where did you finally book?** *(Multiple choice)*
+**10. Did you try booking Tatkal for this trip? What happened?** *(Multiple choice)* — *new*
+- Yes, got a confirmed Tatkal ticket
+- Yes, but got Tatkal waitlist
+- Yes, but couldn't book (sold out in minutes / app slow / payment failed)
+- Yes, through an agent
+- No, Tatkal fare too high
+- No, didn't think of it / didn't know timing
+
+**11. Where did you finally book?** *(Multiple choice)*
 - ixigo / ConfirmTkt
 - IRCTC
 - Another app
@@ -90,21 +100,21 @@
 
 ## Section 3 – How you decide
 
-**11. Rank what matters most when choosing an alternative.** *(Multiple choice grid)*
+**12. Rank what matters most when choosing an alternative.** *(Multiple choice grid)*
 - Rows: Price · Arrival time · Total journey time · Chance of confirmation · Station close to home · Class / comfort · Free cancellation
 - Columns: Rank 1 · Rank 2 · Rank 3 · Rank 4 · Rank 5
 - Settings: turn on **Limit to one response per column**
 
-**12. When an app shows a confirmation chance (e.g. "65% chance"), how much do you trust it?** *(Linear scale 1–5)*
+**13. When an app shows a confirmation chance (e.g. "65% chance"), how much do you trust it?** *(Linear scale 1–5)*
 - 1 = Not at all · 5 = Fully
 
-**13. Has a waitlisted ticket with a high predicted chance (70%+) ever ended differently than you expected?** *(Multiple choice)* — *new: tests H7*
+**14. Has a waitlisted ticket with a high predicted chance (70%+) ever ended differently than you expected?** *(Multiple choice)* — *new: tests H7*
 - Yes, it ended as RAC (shared berth)
 - Yes, it stayed waitlisted / got cancelled
 - No, it confirmed as expected
 - I don't remember / never saw a prediction
 
-**14. What was the hardest part of finding an alternative?** *(Multiple choice)*
+**15. What was the hardest part of finding an alternative?** *(Multiple choice)*
 - Too many options to compare
 - Didn't trust the prediction
 - Alternatives too costly
@@ -113,19 +123,19 @@
 - Had to check many apps
 - Other
 
-**15. If an app showed you one recommended plan plus a backup, what must it show for you to book it?** *(Paragraph)*
+**16. If an app showed you one recommended plan plus a backup, what must it show for you to book it?** *(Paragraph)*
 
 ---
 
 ## Section 4 – About you
 
-**16. Age group** *(Multiple choice)*
+**17. Age group** *(Multiple choice)*
 - Under 22
 - 22–30
 - 31–45
 - 46+
 
-**17. Can I call you for a 15-minute chat about this trip? If yes, share your name and WhatsApp number.** *(Short answer, optional)*
+**18. Can I call you for a 15-minute chat about this trip? If yes, share your name and WhatsApp number.** *(Short answer, optional)*
 
 ---
 
@@ -133,9 +143,10 @@
 | Questions | Hypothesis |
 |---|---|
 | Q7, Q8, Q9 | H1, H5 – re-searching, late panic |
-| Q10 | H6 – where people resolve |
-| Q11 | H4 – price vs other factors |
-| Q12 | H2 – trust in prediction |
-| Q13 | H7 – CNF vs RAC vs WL gap |
-| Q14 | H1, H3 – comparison pain |
-| Q17 | Interview recruitment |
+| Q10 | H5 – Tatkal as last-minute fallback |
+| Q11 | H6 – where people resolve |
+| Q12 | H4 – price vs other factors |
+| Q13 | H2 – trust in prediction |
+| Q14 | H7 – CNF vs RAC vs WL gap |
+| Q15 | H1, H3 – comparison pain |
+| Q18 | Interview recruitment |
