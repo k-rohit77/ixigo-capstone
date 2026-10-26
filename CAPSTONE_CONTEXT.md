@@ -101,6 +101,12 @@ A user knows the trip (e.g. Mumbai → Patna, 5 Nov) but the train shows WL. Eve
 | H4 | Price isn't the main blocker; arrival time, station, family/luggage needs often matter more. | Survey ranking question |
 | H5 | Users "park" a WL ticket, then panic near chart time and leak to Tatkal, buses, or agents. | Interviews: timeline of last WL trip |
 | H6 | Users who resolve elsewhere got one clear recommendation from an agent, family, or another app. | Interviews with segment B |
+| H7 | Predictions blur outcomes: "chance to confirm" doesn't separate CNF (own berth) from RAC (shared berth) or WL, so a "correct" prediction still feels wrong. | Interviews: ask what outcome they expected vs got; app reviews tagged RAC |
+
+### Founder observation (own experience)
+I booked a WL ticket that showed a **~90% chance to confirm**. It ended as **RAC**: I could board but had to share a berth. The prediction felt wrong even though I could travel.
+
+**Takeaway:** users judge a prediction by the outcome they *expected* (own berth), not by whether they can board. Showing the likely outcome as CNF / RAC / WL split, not one "confirm %", is a design input for Steps 2, 4 and 6 (guardrail on overstated confidence).
 
 ### Research questions
 1. When your train showed WL/unavailable, what did you do in the next 10 minutes, and the next 24 hours? (H1, H5)
@@ -169,6 +175,7 @@ Final outcome = confirmed on ixigo · protected WL on ixigo · booked elsewhere 
 | ATP | Confused by Alternate Travel Plan / 3X refund terms | H2 |
 | LATE | Learned too late, no options left | H5 |
 | COST | Alternatives too costly | H4 |
+| RAC | Expected confirmed berth, got RAC | H2, H7 |
 | OTHER | Anything else | – |
 
 ### Competitive analysis
@@ -243,7 +250,8 @@ Sources: [ixigo ATP](https://www.ixigo.com/trains/alternate-travel) · [ConfirmT
 ## 6. Ideas parked for later steps
 - **Step 2 primary barrier (draft):** users can't compare alternatives on certainty and trade-offs, so they re-search and leak.
 - **North Star (draft):** resolved booking rate within 24h, 26% → 42%.
-- **Guardrails (draft):** post-booking regret, prediction calibration/accuracy, cancellation rate of alternatives.
+- **Guardrails (draft):** post-booking regret, prediction calibration/accuracy (measured as CNF vs RAC vs WL, not just "boarded"), cancellation rate of alternatives.
+- **Design idea from founder experience:** show outcome split, e.g. "CNF 60% · RAC 30% · WL 10%", instead of a single confirm %.
 - **Step 8 idea:** AI "trip resolver" that ranks alternatives by the user's priorities and explains certainty honestly.
 - **Business impact:** compute in ₹ = additional resolved bookings × avg ticket value × take rate, split across train/bus/flight.
 
