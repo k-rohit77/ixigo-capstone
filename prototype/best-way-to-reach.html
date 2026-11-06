@@ -87,6 +87,11 @@ button.card:hover{border-color:var(--accent)}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .fine{font-size:11.5px;color:var(--muted)}
+.cutoff{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.cutoff input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.cutoff select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:2px 4px;background:var(--surface);color:var(--ink)}
+.mini{display:flex;justify-content:space-between;gap:8px;align-items:center;width:100%;text-align:left;background:transparent;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:12.5px;position:relative}
+.mini b{color:var(--ink)}
 
 /* Sheet */
 .scrim{position:absolute;inset:0;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;z-index:5}
@@ -165,7 +170,7 @@ const CHIPS = [
   {id:'certain', label:'Most certain', w:{cert:.6,arrive:.15,price:.15,time:.05,station:.05,together:0}},
   {id:'family', label:'Family together', w:{cert:.35,together:.25,price:.15,arrive:.15,station:.1,time:0}}
 ];
-const state = {screen:'results', chip:'balanced', sheet:null, how:false, backup:true, protect:false, booked:null, fb:null};
+const state = {screen:'results', chip:'balanced', sheet:null, how:false, backup:true, protect:false, booked:null, fb:null, cutoffOn:true, cutoff:80};
 
 const total = o => o.fare*PAX + o.extra;
 const inr = n => '₹' + n.toLocaleString('en-IN');
@@ -183,10 +188,12 @@ function factors(o, chip){
 }
 function ranked(chip){
   const w = CHIPS.find(c=>c.id===chip).w;
-  const list = OPTIONS.map(o=>{const f=factors(o,chip); let s=0; for(const k in w) s+=w[k]*f[k]; return {o, s, f, w};}).sort((a,b)=>b.s-a.s);
+  const meetsCutoff = o => !state.cutoffOn || !isWL(o) || o.p.cnf >= state.cutoff;
+  const hidden = OPTIONS.filter(o=>!meetsCutoff(o));
+  const list = OPTIONS.filter(meetsCutoff).map(o=>{const f=factors(o,chip); let s=0; for(const k in w) s+=w[k]*f[k]; return {o, s, f, w};}).sort((a,b)=>b.s-a.s);
   const top = list[0];
   const backup = isWL(top.o) ? list.find(x=>x!==top && !isWL(x.o)) : list.find(x=>x!==top && x.o.mode!==top.o.mode) || list[1];
-  return {list, top, backup};
+  return {list, top, backup, hidden};
 }
 function reason(item){
   const o = item.o, parts = [];
@@ -243,7 +250,7 @@ function screenResults(){
       <div class="alert pinwrap">
         ${pin(2)}
         <strong>No confirmed 3A seats for ${PAX} on this train</strong>
-        <span class="meta">We found 6 other ways to reach Lucknow by Sunday morning, including trains with seats, a bus and a flight.</span>
+        <span class="meta">${state.cutoffOn && mine.p.cnf < state.cutoff ? `Its ${mine.p.cnf}% chance is below your ${state.cutoff}% cut-off. ` : ''}We found ${ranked(state.chip).list.filter(x=>!x.o.yours).length} other ways to reach Lucknow, including trains with seats, a bus and a flight.</span>
         <button class="btn" data-go="bwr">See best ways to reach →</button>
       </div>
       <div class="label">Other trains on this date</div>
@@ -253,20 +260,27 @@ function screenResults(){
 }
 
 function screenBWR(){
-  const {list, top, backup} = ranked(state.chip);
+  const {list, top, backup, hidden} = ranked(state.chip);
   const ordered = [top, backup, ...list.filter(x=>x!==top && x!==backup)];
   return `<div class="screen">
-    <div class="appbar"><button class="back" data-go="results" aria-label="Back">←</button><div><h2>Best ways to reach Lucknow</h2><div class="sub">By Sun 10:00 AM · ${PAX} travellers · from Delhi</div></div></div>
+    <div class="appbar"><button class="back" data-go="results" aria-label="Back">←</button><div><h2>Best ways to reach Lucknow</h2><div class="sub">By Sun 10:00 AM · ${PAX} travellers · from Delhi</div><div class="sub">Seats and chances updated 4 min ago</div></div></div>
     <div class="body">
       <div class="pinwrap">${pin(3)}
         <div class="chips" role="group" aria-label="What matters most">
           ${CHIPS.map(c=>`<button class="chip" data-chip="${c.id}" aria-pressed="${state.chip===c.id}">${c.label}</button>`).join('')}
         </div>
       </div>
-      <div class="pinwrap">${optionCard(top,'pick',4)}</div>
-      <div class="pinwrap">${optionCard(backup,'backup',5)}</div>
+      <div class="cutoff pinwrap">${pin(4)}
+        <input type="checkbox" id="co" ${state.cutoffOn?'checked':''} aria-label="Use my cut-off">
+        <label for="co">Waitlisted options only above</label>
+        <select id="coval" aria-label="Cut-off chance">${[70,80,90].map(v=>`<option value="${v}" ${state.cutoff===v?'selected':''}>${v}%</option>`).join('')}</select>
+        <span>chance of own berth</span>
+      </div>
+      <div class="pinwrap">${optionCard(top,'pick',5)}</div>
+      <div class="pinwrap">${optionCard(backup,'backup',6)}</div>
       <div class="label">All other options, ranked</div>
-      ${ordered.slice(2).map((x,i)=>`<div class="pinwrap">${optionCard(x,'', x.o.yours?6:(isWL(x.o)&&!x.o.yours&&i<6&&x.o.id==='anvt'?7:0))}</div>`).join('')}
+      ${ordered.slice(2).map(x=>`<div class="pinwrap">${optionCard(x,'', (x.o.yours && !hidden.length)?7:(x.o.id==='anvt'?8:0))}</div>`).join('')}
+      ${hidden.length ? `<div class="label">Below your ${state.cutoff}% cut-off</div>${hidden.map(o=>`<button class="mini" data-open="${o.id}">${o.yours?pin(7):''}<span><b>${o.name} ${o.cls}</b>${o.yours?' · your train':''} · ${o.status}</span><span>${o.p.cnf}% own berth</span></button>`).join('')}` : ''}
       <p class="fine pinwrap">Chances come from past bookings on similar dates. They are estimates, never a guarantee. <button class="link" data-how="1">How we estimate</button></p>
     </div></div>`;
 }
@@ -283,17 +297,17 @@ function sheetDetail(){
     <div class="row"><h3>${o.name} · ${o.cls}</h3><button class="link" data-close="1">Close</button></div>
     <div class="times"><span>${o.dep}</span><span class="dash"></span><span class="meta">${hm(o.dur)}</span><span class="dash"></span><span>${o.arr}</span></div>
     <div class="meta">${o.from} · ${o.note}</div>
-    ${isWL(o) ? `<div class="box pinwrap">${pin(8)}
+    ${isWL(o) ? `<div class="box pinwrap">${pin(9)}
         <div class="label">What will likely happen · ${o.status}</div>
         ${meter(o.p,true)}
         <div class="meta">On the last 10 similar Saturdays, a ticket at this position got:</div>
         <div class="history" aria-label="${hist.c} own berth, ${hist.r} RAC, ${hist.w} stayed waitlisted">${'<i style="background:var(--cnf)"></i>'.repeat(hist.c)}${'<i style="background:var(--rac)"></i>'.repeat(hist.r)}${'<i style="background:var(--wl)"></i>'.repeat(hist.w)}</div>
         <div class="fine">Final status is known at chart time, about 4 h before departure (${chartTime}).</div>
       </div>
-      <div class="box pinwrap">${pin(9)}
+      <div class="box pinwrap">${pin(10)}
         <div class="label">If it doesn't confirm</div>
         <label class="switch" for="bk"><input type="checkbox" id="bk" ${state.backup?'checked':''}> <span>Keep <b>${bk.name} (${bk.cls})</b> ready as your backup, ${inr(total(bk))}. We remind you once at chart time; you book it in one tap.</span></label>
-        <label class="switch" for="pr"><input type="checkbox" id="pr" ${state.protect?'checked':''}> <span>Add trip protection, ${inr(protectFee)}: refund plus travel credit if all ${PAX} stay waitlisted.</span></label>
+        <label class="switch" for="pr"><input type="checkbox" id="pr" ${state.protect?'checked':''}> <span>Add trip protection, ${inr(protectFee)}. If all ${PAX} stay waitlisted: your fare comes back to your payment method, plus travel credit for a train, bus or flight. Credit expiry and limits are shown before you pay.</span></label>
       </div>`
     : `<span class="confirmed">✓ Confirmed seats for all ${PAX} · seats ${o.together>=0.9?'together':'may be split across coaches'}</span>`}
     <div class="box">
@@ -329,7 +343,7 @@ function screenDone(){
       ${isWL(o)&&state.backup?`<div class="card"><div class="label">Backup ready</div><div class="row"><span class="name">${bk.name} · ${bk.cls}</span><span class="price">${inr(total(bk))}</span></div><div class="meta">${bk.dep} → ${bk.arr} · one tap to book if needed</div></div>`:''}
       ${isWL(o)?`<div class="timeline"><div><b>Now</b><div class="meta">Waitlisted ticket booked${state.protect?' with trip protection':''}.</div></div><div><b>Chart time, ~4 h before departure</b><div class="meta">We tell you the final status. If it stays WL, your backup is one tap away.</div></div><div><b>Travel day</b><div class="meta">Coach and berth details on this screen.</div></div></div>`
       :`<div class="timeline"><div><b>Now</b><div class="meta">Seats confirmed for all ${PAX}.</div></div><div><b>Travel day</b><div class="meta">Platform and coach details on this screen.</div></div></div>`}
-      <div class="card pinwrap">${pin(10)}<b>Was this the right choice for your trip?</b><span class="meta">Asked once after you travel. It helps us rank better.</span>
+      <div class="card pinwrap">${pin(11)}<b>Was this the right choice for your trip?</b><span class="meta">Asked once after you travel. It helps us rank better.</span>
         <div class="fb">${['Yes','Not sure','No'].map(t=>`<button data-fb="${t}" aria-pressed="${state.fb===t}">${t}</button>`).join('')}</div>
         ${state.fb?'<span class="fine">Thanks, noted.</span>':''}</div>
       <button class="btn ghost" data-restart="1">Restart demo</button>
@@ -338,21 +352,22 @@ function screenDone(){
 
 const NOTES = {
   results:{title:'1 · Search result with an honest outcome', intro:'The user searched Delhi to Lucknow for 3 people. Their train is WL 42.', items:[
-    {n:1,t:'Outcome meter instead of one "% confirm"',d:'Splits the outcome into own berth, RAC and stays WL. Interview finding: a "90% confirm" that ends in RAC feels like the app was wrong. Never says "guaranteed".'},
-    {n:2,t:'Entry point at the moment of pain',d:'Shown only when the chosen class has no confirmed seats. One button replaces re-searching trains, dates, stations, buses and flights in separate tabs.'}]},
-  bwr:{title:'2 · Best ways to reach', intro:'One ranked list across modes, with a top pick and a backup. Tap a chip to see the ranking change.', items:[
-    {n:3,t:'Priority chips',d:'Users rank by what they care about: arrival, price, certainty, or seats together for families. The chip changes the weights; the order updates instantly.'},
-    {n:4,t:'Top pick with a reason',d:'Gives a clear answer, like an agent would, plus the two factors that earned it the spot. Addresses decision overload, the primary barrier.'},
-    {n:5,t:'Backup always visible',d:'If the top pick is waitlisted, the backup is always a confirmed option. Protection becomes a plan, not just a refund.'},
-    {n:6,t:'Your original train stays in the list',d:'Users see where their choice ranks and why. No hidden upselling.'},
-    {n:7,t:'Nearby station shown with real cost',d:'Cab time and cost are added to the total so the cheaper fare is compared fairly.'}]},
+    {n:1,t:'Outcome meter instead of one "% confirm"',d:'Splits the outcome into own berth, RAC and stays WL. Research: 3 of 20 interviewees saw high odds end in RAC or WL, and survey trust in the % is 1.7 out of 5. Never says "guaranteed".'},
+    {n:2,t:'Entry point at the moment of pain',d:'Shown only when the chosen class has no confirmed seats. Research: all 6 survey respondents searched 3+ times; 4 of 6 said too many options or apps was the hardest part.'}]},
+  bwr:{title:'2 · Best ways to reach', intro:'One ranked list across modes, with a top pick and a backup. Tap a chip or change the cut-off to see the ranking change.', items:[
+    {n:3,t:'Priority chips',d:'6 of 20 interviewees named a different top priority (comfort, punctuality, speed, safety, timing). The chip changes the weights; the order updates instantly.'},
+    {n:4,t:'My cut-off filter',d:'8 of 20 interviewees book a waitlisted ticket only above 80–95%. Long shots move to one line at the bottom, so nothing is hidden silently.'},
+    {n:5,t:'Top pick with a reason',d:'A clear answer, like an agent or family member gives, plus the two factors that earned it the spot.'},
+    {n:6,t:'Backup always visible',d:'If the top pick is waitlisted, the backup is always a confirmed option. Protection becomes a plan, not just a refund.'},
+    {n:7,t:'Your own train stays visible',d:'Even below the cut-off, users see where their choice stands and why. No hidden upselling.'},
+    {n:8,t:'Nearby station with its real cost',d:'Cab time and cost are added to the total so a cheaper fare is compared fairly. "Updated 4 min ago" answers data-freshness doubts.'}]},
   detail:{title:'3 · Option detail', intro:'Tapping an option opens the decision sheet.', items:[
-    {n:8,t:'Explainable chance',d:'"On the last 10 similar Saturdays…" turns a percentage into something people can picture. Shows when the final status will be known.'},
-    {n:9,t:'Backup and protection, opt-in',d:'One reminder at chart time, no notification spam. Protection is optional and priced clearly. No discounts used.'}]},
+    {n:9,t:'Explainable chance',d:'"On the last 10 similar Saturdays…" turns a percentage into something people can picture, and says when the final status will be known.'},
+    {n:10,t:'Backup and protection in plain words',d:'One reminder at chart time, no notification spam. Protection terms say what comes back and in what form, because 3X Refund was unknown or unclear to interviewees.'}]},
   how:{title:'3b · How we estimate', intro:'Plain-language explanation of each outcome, including what RAC means.', items:[
-    {n:'i',t:'Honesty guardrail',d:'Explains the method and limits. Ranges are shown when data is thin. Supports the "prediction calibration" guardrail metric.'}]},
+    {n:'i',t:'Honesty guardrail',d:'Explains the method and its limits. Ranges are shown when data is thin. Supports the "prediction calibration" guardrail metric.'}]},
   done:{title:'4 · Plan confirmed', intro:'The user leaves with a plan and, for a WL ticket, a ready backup.', items:[
-    {n:10,t:'Regret check feeds the ranking',d:'A one-tap post-trip question is the main guardrail against bad recommendations and improves the ranking over time (growth loop).'}]}
+    {n:11,t:'Regret check feeds the ranking',d:'A one-tap post-trip question is the main guardrail against bad recommendations and improves the ranking over time (growth loop).'}]}
 };
 
 const phone = document.getElementById('phone');
@@ -381,11 +396,13 @@ phone.addEventListener('click', e=>{
   else if(t.dataset.how){ state.how=true; render(); }
   else if(t.dataset.book){ state.booked=t.dataset.book; state.sheet=null; state.screen='done'; state.fb=null; render(); }
   else if(t.dataset.fb){ state.fb=t.dataset.fb; render(); }
-  else if(t.dataset.restart){ Object.assign(state,{screen:'results',chip:'balanced',sheet:null,how:false,booked:null,fb:null,backup:true,protect:false}); render(); }
+  else if(t.dataset.restart){ Object.assign(state,{screen:'results',chip:'balanced',sheet:null,how:false,booked:null,fb:null,backup:true,protect:false,cutoffOn:true,cutoff:80}); render(); }
 });
 phone.addEventListener('change', e=>{
   if(e.target.id==='bk'){ state.backup=e.target.checked; }
   if(e.target.id==='pr'){ state.protect=e.target.checked; render(); }
+  if(e.target.id==='co'){ state.cutoffOn=e.target.checked; render(); }
+  if(e.target.id==='coval'){ state.cutoff=Number(e.target.value); state.cutoffOn=true; render(); }
 });
 document.getElementById('steps').addEventListener('click', e=>{
   const b = e.target.closest('[data-step]'); if(!b) return;
