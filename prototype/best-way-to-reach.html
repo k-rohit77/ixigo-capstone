@@ -1,0 +1,400 @@
+<title>Best Way to Reach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: phone-sized clickable prototype on the left, PM annotation rail on the right; stacks on phones. */
+:root{
+  --bg:#e7ecf1; --surface:#ffffff; --phone:#f5f7f9; --ink:#15202c; --muted:#5a6774; --line:#d6dde4;
+  --accent:#2c4bd6; --accent-ink:#ffffff; --accent-soft:#e3e8fc;
+  --cnf:#1d8a57; --rac:#c4860f; --wl:#c43f37; --cnf-soft:#e2f3ea; --warn-soft:#fbf1dd;
+  --pin:#2c4bd6;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1319; --surface:#18212b; --phone:#121a22; --ink:#e7edf3; --muted:#95a2b0; --line:#2a3644;
+  --accent:#7f95ff; --accent-ink:#0e1319; --accent-soft:#222b4c;
+  --cnf:#47c08a; --rac:#e2a93c; --wl:#ef7066; --cnf-soft:#173528; --warn-soft:#3a2f17; --pin:#7f95ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --surface:#18212b; --phone:#121a22; --ink:#e7edf3; --muted:#95a2b0; --line:#2a3644;
+  --accent:#7f95ff; --accent-ink:#0e1319; --accent-soft:#222b4c;
+  --cnf:#47c08a; --rac:#e2a93c; --wl:#ef7066; --cnf-soft:#173528; --warn-soft:#3a2f17; --pin:#7f95ff; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.topbar h1{font-family:var(--f-display);font-size:22px;margin:0;text-wrap:balance}
+.topbar p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.stage{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.stage{grid-template-columns:minmax(0,1fr)}}
+
+/* Phone */
+.phone{background:var(--phone);border:1px solid var(--line);border-radius:28px;overflow:hidden;position:relative;height:min(800px,calc(100vh - 40px));min-height:560px;max-width:400px;width:100%;justify-self:center;display:flex;flex-direction:column}
+.screen{display:flex;flex-direction:column;flex:1;min-height:0}
+.appbar{padding:16px 16px 12px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.appbar .back{border:0;background:none;padding:2px 6px 0 0;font-size:18px;line-height:1}
+.appbar h2{margin:0;font-family:var(--f-display);font-size:18px;line-height:1.2}
+.appbar .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1}
+.label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative;text-align:left;width:100%}
+button.card:hover{border-color:var(--accent)}
+.card.pick{border:2px solid var(--accent)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.name{font-weight:700;font-size:15px}
+.meta{color:var(--muted);font-size:12.5px}
+.times{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:13px}
+.times .dash{flex:1;height:1px;background:var(--line)}
+.price{font-weight:700;font-family:var(--f-mono);font-size:14px;white-space:nowrap}
+.mode{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;padding:2px 6px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.b-pick{background:var(--accent);color:var(--accent-ink)}
+.b-backup{background:var(--accent-soft);color:var(--accent)}
+.b-yours{border:1px dashed var(--muted);color:var(--muted)}
+.status{font-family:var(--f-mono);font-size:12px;font-weight:600;white-space:nowrap}
+.row > .meta{min-width:0}
+.s-cnf{color:var(--cnf)} .s-wl{color:var(--wl)} .s-rac{color:var(--rac)}
+.reason{font-size:12.5px;color:var(--ink);background:var(--accent-soft);border-radius:8px;padding:6px 8px}
+
+/* Outcome meter */
+.meter{display:flex;flex-direction:column;gap:4px}
+.bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--line)}
+.bar span{display:block;height:100%}
+.bar .c{background:var(--cnf)} .bar .r{background:var(--rac)} .bar .w{background:var(--wl)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.legend b{font-family:var(--f-mono);color:var(--ink)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.confirmed{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--cnf);background:var(--cnf-soft);border-radius:8px;padding:4px 8px;align-self:flex-start}
+
+.alert{background:var(--warn-soft);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.alert strong{font-size:14px}
+.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink);width:100%}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.fine{font-size:11.5px;color:var(--muted)}
+
+/* Sheet */
+.scrim{position:absolute;inset:0;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;z-index:5}
+.sheet{background:var(--surface);width:100%;border-radius:20px 20px 0 0;padding:16px;display:flex;flex-direction:column;gap:12px;max-height:88%;overflow-y:auto}
+.sheet h3{margin:0;font-family:var(--f-display);font-size:18px}
+.box{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.switch{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.switch input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px}
+.sum{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:13px}
+.history{display:flex;gap:3px}
+.history i{width:18px;height:18px;border-radius:4px;display:block}
+.timeline{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--line);margin-left:6px;padding-left:12px}
+.timeline > div{position:relative}
+.timeline > div::before{content:"";position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.done-mark{width:48px;height:48px;border-radius:50%;background:var(--cnf-soft);color:var(--cnf);display:grid;place-items:center;font-size:24px;font-weight:700}
+.fb{display:flex;gap:8px}
+.fb button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px;font-weight:600}
+.fb button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* Annotation pins */
+.pin{display:none;position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:var(--pin);color:var(--accent-ink);font:700 11px/22px var(--f-mono);text-align:center;z-index:3;box-shadow:0 0 0 3px var(--phone)}
+.show-pins .pin{display:block}
+.pinwrap{position:relative}
+
+/* Notes rail */
+.notes{display:flex;flex-direction:column;gap:12px;min-width:0}
+.notes h3{font-family:var(--f-display);font-size:18px;margin:0}
+.notes .intro{color:var(--muted);margin:0;max-width:60ch}
+.note{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.note .n{width:24px;height:24px;border-radius:50%;background:var(--pin);color:var(--accent-ink);font:700 11px/24px var(--f-mono);text-align:center}
+.note b{display:block;margin-bottom:2px}
+.note p{margin:0;color:var(--muted);font-size:13px;max-width:62ch}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.steps button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 10px;font-size:12px}
+.steps button[aria-current="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.disclaimer{font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <h1>Best Way to Reach</h1>
+      <p>Clickable concept for a waitlisted train journey · student capstone prototype with sample data, not an ixigo product</p>
+    </div>
+    <label class="toggle" for="pinToggle"><input type="checkbox" id="pinToggle" checked> Show PM annotations</label>
+  </div>
+
+  <div class="stage">
+    <div class="phone show-pins" id="phone"></div>
+    <aside class="notes" aria-live="polite">
+      <div class="steps" id="steps"></div>
+      <h3 id="notesTitle"></h3>
+      <p class="intro" id="notesIntro"></p>
+      <div id="notesList" style="display:flex;flex-direction:column;gap:10px"></div>
+      <p class="disclaimer">Trains, fares and chances are sample values for the demo. Ranking logic: score = weighted sum of certainty, timing fit, price, journey time, station convenience and seats-together; the chip sets the weights.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const PAX = 3, TARGET = 24*60 + 600; // arrive by Sun 10:00
+const OPTIONS = [
+  {id:'mail3a', mode:'TRAIN', name:'Lucknow Mail', cls:'3A', from:'New Delhi', note:'Your search', dep:'Sat 22:00', arr:'Sun 06:55', depMin:1320, arrMin:1855, dur:535, fare:1155, extra:0, status:'WL 42', p:{cnf:35,rac:25,wl:40}, together:0.4, cab:0, yours:true},
+  {id:'mail2a', mode:'TRAIN', name:'Lucknow Mail', cls:'2A', from:'New Delhi', note:'Same train, higher class', dep:'Sat 22:00', arr:'Sun 06:55', depMin:1320, arrMin:1855, dur:535, fare:1640, extra:0, status:'AVL 6', p:{cnf:100,rac:0,wl:0}, together:0.8, cab:0},
+  {id:'anvt', mode:'TRAIN', name:'AC Express', cls:'3A', from:'Anand Vihar Terminal', note:'Nearby station · 18 km, ~45 min cab', dep:'Sat 23:10', arr:'Sun 08:20', depMin:1390, arrMin:1940, dur:550, fare:1090, extra:450, status:'WL 6', p:{cnf:82,rac:15,wl:3}, together:0.6, cab:45},
+  {id:'gomti', mode:'TRAIN', name:'Gomti Express', cls:'CC', from:'New Delhi', note:'Day train, sitting seats', dep:'Sat 12:20', arr:'Sat 21:30', depMin:740, arrMin:1290, dur:550, fare:880, extra:0, status:'AVL 54', p:{cnf:100,rac:0,wl:0}, together:0.9, cab:0},
+  {id:'nextday', mode:'TRAIN', name:'Lucknow Mail', cls:'3A', from:'New Delhi', note:'Next day · arrives Monday', dep:'Sun 22:00', arr:'Mon 06:55', depMin:2760, arrMin:3295, dur:535, fare:1155, extra:0, status:'AVL 21', p:{cnf:100,rac:0,wl:0}, together:0.8, cab:0},
+  {id:'bus', mode:'BUS', name:'AC sleeper bus', cls:'Sleeper', from:'Kashmere Gate ISBT', note:'8 km, ~25 min · 3 berths together', dep:'Sat 22:30', arr:'Sun 07:30', depMin:1350, arrMin:1890, dur:540, fare:1350, extra:0, status:'7 left', p:{cnf:100,rac:0,wl:0}, together:1, cab:25},
+  {id:'flight', mode:'FLIGHT', name:'Non-stop flight', cls:'Economy', from:'Delhi T1', note:'Plus ~2.5 h airport time', dep:'Sun 07:05', arr:'Sun 08:15', depMin:1865, arrMin:1935, dur:220, fare:4800, extra:0, status:'9 left', p:{cnf:100,rac:0,wl:0}, together:0.9, cab:40}
+];
+const CHIPS = [
+  {id:'balanced', label:'Balanced', w:{cert:.35,price:.25,arrive:.2,time:.1,station:.1,together:0}},
+  {id:'arrive', label:'Arrive by 10 AM', w:{cert:.3,arrive:.45,price:.1,time:.1,station:.05,together:0}},
+  {id:'cheap', label:'Cheapest', w:{cert:.25,price:.55,arrive:.1,time:.05,station:.05,together:0}},
+  {id:'certain', label:'Most certain', w:{cert:.6,arrive:.15,price:.15,time:.05,station:.05,together:0}},
+  {id:'family', label:'Family together', w:{cert:.35,together:.25,price:.15,arrive:.15,station:.1,time:0}}
+];
+const state = {screen:'results', chip:'balanced', sheet:null, how:false, backup:true, protect:false, booked:null, fb:null};
+
+const total = o => o.fare*PAX + o.extra;
+const inr = n => '₹' + n.toLocaleString('en-IN');
+const hm = m => `${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`;
+const isWL = o => o.p.cnf < 100;
+
+function factors(o, chip){
+  const ps = OPTIONS.map(total), pmin = Math.min(...ps), pmax = Math.max(...ps);
+  const ds = OPTIONS.map(x=>x.dur), dmin = Math.min(...ds), dmax = Math.max(...ds);
+  const racW = chip === 'family' ? 0.2 : 0.5;
+  const arriveFit = o.arrMin <= TARGET ? 1 : Math.max(0, 1 - (o.arrMin - TARGET)/1440);
+  const depFit = o.depMin >= 1080 ? 1 : 0.4; // traveller can leave after 6 PM Saturday
+  return {cert:(o.p.cnf + racW*o.p.rac)/100, price:1-(total(o)-pmin)/(pmax-pmin), arrive:arriveFit*depFit,
+          time:1-(o.dur-dmin)/(dmax-dmin), station:1-o.cab/60, together:o.together};
+}
+function ranked(chip){
+  const w = CHIPS.find(c=>c.id===chip).w;
+  const list = OPTIONS.map(o=>{const f=factors(o,chip); let s=0; for(const k in w) s+=w[k]*f[k]; return {o, s, f, w};}).sort((a,b)=>b.s-a.s);
+  const top = list[0];
+  const backup = isWL(top.o) ? list.find(x=>x!==top && !isWL(x.o)) : list.find(x=>x!==top && x.o.mode!==top.o.mode) || list[1];
+  return {list, top, backup};
+}
+function reason(item){
+  const o = item.o, parts = [];
+  const contrib = Object.keys(item.w).filter(k=>item.w[k]>0).map(k=>({k, v:item.w[k]*item.f[k]})).sort((a,b)=>b.v-a.v);
+  for(const {k} of contrib){
+    if(parts.length===2) break;
+    if(k==='cert') parts.push(isWL(o) ? `${o.p.cnf}% chance of own berth` : 'Confirmed seats');
+    if(k==='price') parts.push(`${inr(total(o))} for ${PAX}`);
+    if(k==='arrive') parts.push(`Arrives ${o.arr}`);
+    if(k==='time') parts.push(`${hm(o.dur)} journey`);
+    if(k==='station' && o.cab===0) parts.push('From your station');
+    if(k==='together' && o.together>=0.9) parts.push('Seats together');
+  }
+  return parts.join(' · ');
+}
+function meter(p, big){
+  return `<div class="meter">
+    <div class="bar" role="img" aria-label="Own berth ${p.cnf}%, RAC ${p.rac}%, stays waitlisted ${p.wl}%" style="${big?'height:12px':''}">
+      <span class="c" style="width:${p.cnf}%"></span><span class="r" style="width:${p.rac}%"></span><span class="w" style="width:${p.wl}%"></span>
+    </div>
+    <div class="legend"><span><span class="dot" style="background:var(--cnf)"></span>Own berth <b>${p.cnf}%</b></span><span><span class="dot" style="background:var(--rac)"></span>RAC (shared) <b>${p.rac}%</b></span><span><span class="dot" style="background:var(--wl)"></span>Stays WL <b>${p.wl}%</b></span></div>
+  </div>`;
+}
+const pin = n => `<span class="pin" aria-hidden="true">${n}</span>`;
+
+function optionCard(item, tag, pinNo){
+  const o = item.o;
+  const st = isWL(o) ? 's-wl' : 's-cnf';
+  return `<button class="card ${tag==='pick'?'pick':''}" data-open="${o.id}" aria-label="${o.name} ${o.cls}, ${o.dep} to ${o.arr}, ${inr(total(o))}">
+    ${pinNo?pin(pinNo):''}
+    <div class="badges">${tag==='pick'?'<span class="badge b-pick">Top pick</span>':''}${tag==='backup'?'<span class="badge b-backup">Backup</span>':''}${o.yours?'<span class="badge b-yours">Your train</span>':''}</div>
+    <div class="row"><div><span class="mode">${o.mode}</span> <span class="name">${o.name}</span> <span class="meta">${o.cls}</span></div><span class="price">${inr(total(o))}</span></div>
+    <div class="times"><span>${o.dep}</span><span class="dash"></span><span class="meta">${hm(o.dur)}</span><span class="dash"></span><span>${o.arr}</span></div>
+    <div class="row"><span class="meta">${o.from} · ${o.note}</span><span class="status ${st}">${o.status}</span></div>
+    ${isWL(o) ? meter(o.p) : '<span class="confirmed">✓ Confirmed seats for all '+PAX+'</span>'}
+    ${tag ? `<div class="reason"><b>Why:</b> ${reason(item)}</div>` : ''}
+  </button>`;
+}
+
+function screenResults(){
+  const mine = OPTIONS[0];
+  return `<div class="screen">
+    <div class="appbar"><div><h2>New Delhi → Lucknow</h2><div class="sub">Sat, 15 Nov · ${PAX} travellers · 3A</div></div></div>
+    <div class="body">
+      <div class="label">Your preferred train</div>
+      <div class="card pinwrap">
+        ${pin(1)}
+        <div class="row"><div><span class="mode">TRAIN</span> <span class="name">${mine.name}</span> <span class="meta">3A</span></div><span class="price">${inr(mine.fare)}<span class="meta">/person</span></span></div>
+        <div class="times"><span>${mine.dep}</span><span class="dash"></span><span class="meta">${hm(mine.dur)}</span><span class="dash"></span><span>${mine.arr}</span></div>
+        <div class="row"><span class="meta">Likely outcome if you book</span><span class="status s-wl">WL 42</span></div>
+        ${meter(mine.p)}
+        <span class="fine">1 in 4 chance you share a berth (RAC). <button class="link" data-how="1">How we estimate</button></span>
+      </div>
+      <div class="alert pinwrap">
+        ${pin(2)}
+        <strong>No confirmed 3A seats for ${PAX} on this train</strong>
+        <span class="meta">We found 6 other ways to reach Lucknow by Sunday morning, including trains with seats, a bus and a flight.</span>
+        <button class="btn" data-go="bwr">See best ways to reach →</button>
+      </div>
+      <div class="label">Other trains on this date</div>
+      <div class="card"><div class="row"><div><span class="mode">TRAIN</span> <span class="name">Gomti Express</span> <span class="meta">CC</span></div><span class="status s-cnf">AVL 54</span></div><div class="meta">Sat 12:20 → Sat 21:30 · day train</div></div>
+      <div class="card"><div class="row"><div><span class="mode">TRAIN</span> <span class="name">AC Express</span> <span class="meta">3A · Anand Vihar</span></div><span class="status s-wl">WL 6</span></div><div class="meta">Sat 23:10 → Sun 08:20</div></div>
+    </div></div>`;
+}
+
+function screenBWR(){
+  const {list, top, backup} = ranked(state.chip);
+  const ordered = [top, backup, ...list.filter(x=>x!==top && x!==backup)];
+  return `<div class="screen">
+    <div class="appbar"><button class="back" data-go="results" aria-label="Back">←</button><div><h2>Best ways to reach Lucknow</h2><div class="sub">By Sun 10:00 AM · ${PAX} travellers · from Delhi</div></div></div>
+    <div class="body">
+      <div class="pinwrap">${pin(3)}
+        <div class="chips" role="group" aria-label="What matters most">
+          ${CHIPS.map(c=>`<button class="chip" data-chip="${c.id}" aria-pressed="${state.chip===c.id}">${c.label}</button>`).join('')}
+        </div>
+      </div>
+      <div class="pinwrap">${optionCard(top,'pick',4)}</div>
+      <div class="pinwrap">${optionCard(backup,'backup',5)}</div>
+      <div class="label">All other options, ranked</div>
+      ${ordered.slice(2).map((x,i)=>`<div class="pinwrap">${optionCard(x,'', x.o.yours?6:(isWL(x.o)&&!x.o.yours&&i<6&&x.o.id==='anvt'?7:0))}</div>`).join('')}
+      <p class="fine pinwrap">Chances come from past bookings on similar dates. They are estimates, never a guarantee. <button class="link" data-how="1">How we estimate</button></p>
+    </div></div>`;
+}
+
+function sheetDetail(){
+  const o = OPTIONS.find(x=>x.id===state.sheet);
+  const {top, backup} = ranked(state.chip);
+  const bk = (o.id === backup.o.id) ? top.o : backup.o;
+  const hist = isWL(o) ? (()=>{const c=Math.round(o.p.cnf/10), r=Math.round(o.p.rac/10), w=Math.max(0,10-c-r); return {c,r,w};})() : null;
+  const chartTime = (()=>{const m=o.depMin-240; const d=m>=1440?'Sun':'Sat'; const mm=((m%1440)+1440)%1440; return `${d} ${String(Math.floor(mm/60)).padStart(2,'0')}:${String(mm%60).padStart(2,'0')}`;})();
+  const protectFee = 89*PAX;
+  const sum = total(o) + (isWL(o)&&state.protect?protectFee:0);
+  return `<div class="scrim" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="${o.name} details">
+    <div class="row"><h3>${o.name} · ${o.cls}</h3><button class="link" data-close="1">Close</button></div>
+    <div class="times"><span>${o.dep}</span><span class="dash"></span><span class="meta">${hm(o.dur)}</span><span class="dash"></span><span>${o.arr}</span></div>
+    <div class="meta">${o.from} · ${o.note}</div>
+    ${isWL(o) ? `<div class="box pinwrap">${pin(8)}
+        <div class="label">What will likely happen · ${o.status}</div>
+        ${meter(o.p,true)}
+        <div class="meta">On the last 10 similar Saturdays, a ticket at this position got:</div>
+        <div class="history" aria-label="${hist.c} own berth, ${hist.r} RAC, ${hist.w} stayed waitlisted">${'<i style="background:var(--cnf)"></i>'.repeat(hist.c)}${'<i style="background:var(--rac)"></i>'.repeat(hist.r)}${'<i style="background:var(--wl)"></i>'.repeat(hist.w)}</div>
+        <div class="fine">Final status is known at chart time, about 4 h before departure (${chartTime}).</div>
+      </div>
+      <div class="box pinwrap">${pin(9)}
+        <div class="label">If it doesn't confirm</div>
+        <label class="switch" for="bk"><input type="checkbox" id="bk" ${state.backup?'checked':''}> <span>Keep <b>${bk.name} (${bk.cls})</b> ready as your backup, ${inr(total(bk))}. We remind you once at chart time; you book it in one tap.</span></label>
+        <label class="switch" for="pr"><input type="checkbox" id="pr" ${state.protect?'checked':''}> <span>Add trip protection, ${inr(protectFee)}: refund plus travel credit if all ${PAX} stay waitlisted.</span></label>
+      </div>`
+    : `<span class="confirmed">✓ Confirmed seats for all ${PAX} · seats ${o.together>=0.9?'together':'may be split across coaches'}</span>`}
+    <div class="box">
+      <div class="sum"><span>${inr(o.fare)} × ${PAX}</span><span>${inr(o.fare*PAX)}</span></div>
+      ${o.extra?`<div class="sum"><span>Cab to ${o.from} (est.)</span><span>${inr(o.extra)}</span></div>`:''}
+      ${isWL(o)&&state.protect?`<div class="sum"><span>Trip protection</span><span>${inr(protectFee)}</span></div>`:''}
+      <div class="sum" style="font-weight:700"><span>Total</span><span>${inr(sum)}</span></div>
+    </div>
+    <button class="btn" data-book="${o.id}">${isWL(o)?'Book waitlisted ticket':'Book'} for ${PAX} · ${inr(sum)}</button>
+  </div></div>`;
+}
+
+function sheetHow(){
+  return `<div class="scrim" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="How we estimate">
+    <div class="row"><h3>How we estimate your chances</h3><button class="link" data-close="1">Close</button></div>
+    <p class="meta" style="margin:0">We look at how tickets at the same waitlist position cleared on this train, class and quota on similar dates (weekday, season, festivals).</p>
+    <div class="box"><b>Own berth</b><span class="meta">You get a confirmed berth of your own.</span></div>
+    <div class="box"><b>RAC (shared)</b><span class="meta">You can board, but share a side-lower berth with another passenger until one frees up.</span></div>
+    <div class="box"><b>Stays waitlisted</b><span class="meta">The ticket is cancelled at chart time and refunded. You cannot board.</span></div>
+    <p class="fine" style="margin:0">These are estimates, not promises. When we have little data for a train, we show a range instead of one number.</p>
+  </div></div>`;
+}
+
+function screenDone(){
+  const o = OPTIONS.find(x=>x.id===state.booked);
+  const {top, backup} = ranked(state.chip);
+  const bk = (o.id === backup.o.id) ? top.o : backup.o;
+  return `<div class="screen">
+    <div class="appbar"><div><h2>Your plan is set</h2><div class="sub">New Delhi → Lucknow · ${PAX} travellers</div></div></div>
+    <div class="body">
+      <div class="done-mark" aria-hidden="true">✓</div>
+      <div class="card"><div class="label">Plan</div><div class="row"><span class="name">${o.name} · ${o.cls}</span><span class="status ${isWL(o)?'s-wl':'s-cnf'}">${isWL(o)?o.status:'Confirmed'}</span></div><div class="meta">${o.dep} → ${o.arr} · ${o.from}</div>${isWL(o)?meter(o.p):''}</div>
+      ${isWL(o)&&state.backup?`<div class="card"><div class="label">Backup ready</div><div class="row"><span class="name">${bk.name} · ${bk.cls}</span><span class="price">${inr(total(bk))}</span></div><div class="meta">${bk.dep} → ${bk.arr} · one tap to book if needed</div></div>`:''}
+      ${isWL(o)?`<div class="timeline"><div><b>Now</b><div class="meta">Waitlisted ticket booked${state.protect?' with trip protection':''}.</div></div><div><b>Chart time, ~4 h before departure</b><div class="meta">We tell you the final status. If it stays WL, your backup is one tap away.</div></div><div><b>Travel day</b><div class="meta">Coach and berth details on this screen.</div></div></div>`
+      :`<div class="timeline"><div><b>Now</b><div class="meta">Seats confirmed for all ${PAX}.</div></div><div><b>Travel day</b><div class="meta">Platform and coach details on this screen.</div></div></div>`}
+      <div class="card pinwrap">${pin(10)}<b>Was this the right choice for your trip?</b><span class="meta">Asked once after you travel. It helps us rank better.</span>
+        <div class="fb">${['Yes','Not sure','No'].map(t=>`<button data-fb="${t}" aria-pressed="${state.fb===t}">${t}</button>`).join('')}</div>
+        ${state.fb?'<span class="fine">Thanks, noted.</span>':''}</div>
+      <button class="btn ghost" data-restart="1">Restart demo</button>
+    </div></div>`;
+}
+
+const NOTES = {
+  results:{title:'1 · Search result with an honest outcome', intro:'The user searched Delhi to Lucknow for 3 people. Their train is WL 42.', items:[
+    {n:1,t:'Outcome meter instead of one "% confirm"',d:'Splits the outcome into own berth, RAC and stays WL. Interview finding: a "90% confirm" that ends in RAC feels like the app was wrong. Never says "guaranteed".'},
+    {n:2,t:'Entry point at the moment of pain',d:'Shown only when the chosen class has no confirmed seats. One button replaces re-searching trains, dates, stations, buses and flights in separate tabs.'}]},
+  bwr:{title:'2 · Best ways to reach', intro:'One ranked list across modes, with a top pick and a backup. Tap a chip to see the ranking change.', items:[
+    {n:3,t:'Priority chips',d:'Users rank by what they care about: arrival, price, certainty, or seats together for families. The chip changes the weights; the order updates instantly.'},
+    {n:4,t:'Top pick with a reason',d:'Gives a clear answer, like an agent would, plus the two factors that earned it the spot. Addresses decision overload, the primary barrier.'},
+    {n:5,t:'Backup always visible',d:'If the top pick is waitlisted, the backup is always a confirmed option. Protection becomes a plan, not just a refund.'},
+    {n:6,t:'Your original train stays in the list',d:'Users see where their choice ranks and why. No hidden upselling.'},
+    {n:7,t:'Nearby station shown with real cost',d:'Cab time and cost are added to the total so the cheaper fare is compared fairly.'}]},
+  detail:{title:'3 · Option detail', intro:'Tapping an option opens the decision sheet.', items:[
+    {n:8,t:'Explainable chance',d:'"On the last 10 similar Saturdays…" turns a percentage into something people can picture. Shows when the final status will be known.'},
+    {n:9,t:'Backup and protection, opt-in',d:'One reminder at chart time, no notification spam. Protection is optional and priced clearly. No discounts used.'}]},
+  how:{title:'3b · How we estimate', intro:'Plain-language explanation of each outcome, including what RAC means.', items:[
+    {n:'i',t:'Honesty guardrail',d:'Explains the method and limits. Ranges are shown when data is thin. Supports the "prediction calibration" guardrail metric.'}]},
+  done:{title:'4 · Plan confirmed', intro:'The user leaves with a plan and, for a WL ticket, a ready backup.', items:[
+    {n:10,t:'Regret check feeds the ranking',d:'A one-tap post-trip question is the main guardrail against bad recommendations and improves the ranking over time (growth loop).'}]}
+};
+
+const phone = document.getElementById('phone');
+function render(){
+  let html = state.screen==='results' ? screenResults() : state.screen==='bwr' ? screenBWR() : screenDone();
+  if(state.sheet) html += sheetDetail();
+  if(state.how) html += sheetHow();
+  phone.innerHTML = html;
+  const key = state.how ? 'how' : state.sheet ? 'detail' : state.screen;
+  const N = NOTES[key];
+  document.getElementById('notesTitle').textContent = N.title;
+  document.getElementById('notesIntro').textContent = N.intro;
+  document.getElementById('notesList').innerHTML = N.items.map(i=>`<div class="note"><span class="n">${i.n}</span><div><b>${i.t}</b><p>${i.d}</p></div></div>`).join('');
+  const steps = [['results','1 Search'],['bwr','2 Best ways'],['detail','3 Detail'],['done','4 Plan set']];
+  document.getElementById('steps').innerHTML = steps.map(([k,l])=>`<button data-step="${k}" aria-current="${key===k||(key==='how'&&k==='detail')}">${l}</button>`).join('');
+}
+
+phone.addEventListener('click', e=>{
+  const t = e.target.closest('[data-go],[data-chip],[data-open],[data-close],[data-book],[data-how],[data-fb],[data-restart]');
+  if(!t) return;
+  if(t.dataset.close && (t===e.target || t.classList.contains('link'))){ state.sheet=null; state.how=false; render(); return; }
+  if(t.dataset.close) return;
+  if(t.dataset.go){ state.screen=t.dataset.go; state.sheet=null; render(); const bd=phone.querySelector('.body'); if(bd) bd.scrollTop=0; }
+  else if(t.dataset.chip){ state.chip=t.dataset.chip; render(); }
+  else if(t.dataset.open){ state.sheet=t.dataset.open; render(); }
+  else if(t.dataset.how){ state.how=true; render(); }
+  else if(t.dataset.book){ state.booked=t.dataset.book; state.sheet=null; state.screen='done'; state.fb=null; render(); }
+  else if(t.dataset.fb){ state.fb=t.dataset.fb; render(); }
+  else if(t.dataset.restart){ Object.assign(state,{screen:'results',chip:'balanced',sheet:null,how:false,booked:null,fb:null,backup:true,protect:false}); render(); }
+});
+phone.addEventListener('change', e=>{
+  if(e.target.id==='bk'){ state.backup=e.target.checked; }
+  if(e.target.id==='pr'){ state.protect=e.target.checked; render(); }
+});
+document.getElementById('steps').addEventListener('click', e=>{
+  const b = e.target.closest('[data-step]'); if(!b) return;
+  const k = b.dataset.step; state.how=false;
+  if(k==='detail'){ state.screen='bwr'; state.sheet='anvt'; }
+  else if(k==='done'){ state.screen='done'; state.sheet=null; state.booked = state.booked || 'anvt'; }
+  else { state.screen=k; state.sheet=null; }
+  render();
+});
+document.getElementById('pinToggle').addEventListener('change', e=>{ phone.classList.toggle('show-pins', e.target.checked); });
+render();
+</script>
