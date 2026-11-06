@@ -25,6 +25,6 @@ Airtribe Product Management Launchpad capstone by **Rohit Kumar**.
 
 ## Progress
 - [x] Steps 1–9 drafted
-- [ ] Add interview quotes and counts (deck slide 5, doc Step 2)
+- [x] Interview findings added (21 records, research/interview-report.pdf)
 - [ ] Share every link (Share → anyone with the link) before submitting
 - [ ] Record Loom (~15 min) using the speaker notes
