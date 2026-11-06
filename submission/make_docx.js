@@ -138,7 +138,7 @@ children.push(para(fitImage('newflow.png', D.imgs['newflow.png'], PX_W, 560), { 
 D.ann.forEach((a, i) => {
   children.push(h1(i === 0 ? '5 · Prototype annotated screens' : `5 · ${a.title}`));
   if (i === 0) {
-    children.push(new Paragraph({ spacing: { after: 80 }, children: [run('Live prototype: ', { bold: true }), new ExternalHyperlink({ link: 'https://best-way-to-reach.lovable.app', children: [new TextRun({ text: 'https://best-way-to-reach.lovable.app', style: 'Hyperlink', font: FONT, size: 20 })] })] }));
+    children.push(new Paragraph({ spacing: { after: 80 }, children: [run('Live prototype: ', { bold: true }), new ExternalHyperlink({ link: 'https://prototype-rohit-ixigo.lovable.app', children: [new TextRun({ text: 'https://prototype-rohit-ixigo.lovable.app', style: 'Hyperlink', font: FONT, size: 20 })] })] }));
     children.push(h2(a.title));
   }
   children.push(lead(a.desc));

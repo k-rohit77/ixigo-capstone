@@ -163,7 +163,7 @@ ann = [
  ('a3.png', 'Screen 3 · Option detail', 'The chance explained as the last 10 similar Saturdays (9); backup and protection in plain words (10).'),
  ('a4.png', 'Screen 4 · Plan set', 'Plan, ready backup, chart-time timeline and the post-trip regret question that feeds the ranking (11).'),
 ]
-ann_pages = ''.join(f'''<section class="page"><div class="eyebrow">5 · Prototype · best-way-to-reach.lovable.app</div><h2>{e(t)}</h2><p class="lead">{e(d)}</p><img class="ann" src="{img(f)}" alt="{e(t)}"></section>''' for f, t, d in ann)
+ann_pages = ''.join(f'''<section class="page"><div class="eyebrow">5 · Prototype · prototype-rohit-ixigo.lovable.app</div><h2>{e(t)}</h2><p class="lead">{e(d)}</p><img class="ann" src="{img(f)}" alt="{e(t)}"></section>''' for f, t, d in ann)
 
 doc = f'''<!doctype html><html><head><meta charset="utf-8"><title>Supporting Artifacts – Rohit Kumar</title>
 <style>
