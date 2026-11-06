@@ -13,7 +13,18 @@ Airtribe Product Management Launchpad capstone by **Rohit Kumar**.
 | `prototype/` | Prototype code or links (Steps 4 and 8) |
 | `deck/` | Final presentation (Step 9) |
 
+## Submission links
+| Deliverable | Link |
+|---|---|
+| Step 1 research doc | https://claude.ai/artifact/N44ZFHRrTX9A8tSE4TPxAY |
+| Steps 2–8 problem, solution & PRD doc | https://claude.ai/artifact/XrM8yHwwUGXVJE8sBA51Pi |
+| Clickable prototype (Step 4) | https://claude.ai/artifact/7at45wbTiVVxD9d7GvPLar |
+| AI Trip Resolver (Step 8) | https://claude.ai/artifact/KPxNPimZcUWhTTiMVHkK7B |
+| Deck, 18 slides with speaker notes (Step 9) | https://claude.ai/artifact/4ZAbgW5dZ1empbRECLYG9z |
+| Loom walkthrough | _add link_ |
+
 ## Progress
-- [x] Step 1 framework (questions, plan, survey, competitors)
-- [ ] Step 1 interviews (0/20)
-- [ ] Steps 2–9
+- [x] Steps 1–9 drafted
+- [ ] Add interview quotes and counts (deck slide 5, doc Step 2)
+- [ ] Share every link (Share → anyone with the link) before submitting
+- [ ] Record Loom (~15 min) using the speaker notes
