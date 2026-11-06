@@ -18,7 +18,8 @@ Airtribe Product Management Launchpad capstone by **Rohit Kumar**.
 |---|---|
 | Step 1 research doc | https://claude.ai/artifact/N44ZFHRrTX9A8tSE4TPxAY |
 | Steps 2–8 problem, solution & PRD doc | https://claude.ai/artifact/XrM8yHwwUGXVJE8sBA51Pi |
-| Clickable prototype (Step 4) | https://claude.ai/artifact/7at45wbTiVVxD9d7GvPLar |
+| Prototype – Lovable (submission link) | https://best-way-to-reach.lovable.app |
+| Clickable prototype – Claude version | https://claude.ai/artifact/7at45wbTiVVxD9d7GvPLar |
 | AI Trip Resolver (Step 8) | https://claude.ai/artifact/KPxNPimZcUWhTTiMVHkK7B |
 | Deck, 18 slides with speaker notes (Step 9) | https://claude.ai/artifact/4ZAbgW5dZ1empbRECLYG9z |
 | Loom walkthrough | _add link_ |
